@@ -8,7 +8,7 @@ class Vector {
 
     plus(vector) {
             if (!Vector.prototype.isPrototypeOf(vector)) {
-                throw new Error ('Можно прибавлять к вектору только вектор типа Vector');
+                throw new Error ('пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ Vector');
             }
             let x = this.x + vector.x;
             let y = this.y + vector.y;
@@ -25,7 +25,7 @@ class Vector {
 class Actor {
     constructor(position = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
         if (!Vector.prototype.isPrototypeOf(position) || !Vector.prototype.isPrototypeOf(size) || !Vector.prototype.isPrototypeOf(speed)) {
-            throw new Error('Можно использовать только вектор типа Vector');
+            throw new Error('пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ Vector');
         }
         this.pos = position;
         this.size = size;
@@ -66,12 +66,12 @@ class Actor {
 
     isIntersect(someObj) {
             if (!Actor.prototype.isPrototypeOf(someObj) || someObj === 'undefined') {
-                throw new Error('Можно использовать только объект типа Actor');
+                throw new Error('пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ Actor');
             };
 
             if (someObj === this) {
                 return false;
-            } 
+            }
 
             return this.left < someObj.right && this.top < someObj.bottom && this.right > someObj.left && this.bottom > someObj.top;
     }
@@ -86,13 +86,10 @@ class Level {
         this.width = grid.reduce(((max, arr) => (arr.length > max) ? arr.length : max), 0);
         this.status = null;
         this.finishDelay = 1;
-        this.player = arrActors.find(el => el.type === 'player');
-
-        /*Object.defineProperty(this, 'player', {
-            get: function () {
-                return arrActors.find(el => el['type'] === 'player');
-            }
-        })*/
+        this.player = this.actors.find(el => {
+          el.type === 'player'
+          console.log(el);
+        });
     }
 
     isFinished() {
@@ -105,7 +102,7 @@ class Level {
 
     actorAt(someActor) {
             if (someActor === 'undefined' || !Actor.prototype.isPrototypeOf(someActor)) {
-                throw new Error ('Не является объектом типа Actor');
+                throw new Error ('пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ Actor');
             }
             for (let insideActor of this.actors) {
                 if (insideActor.isIntersect(someActor)) {
@@ -116,7 +113,7 @@ class Level {
 
     obstacleAt(posNext, size) {
         if (!Vector.prototype.isPrototypeOf(posNext) && !Vector.prototype.isPrototypeOf(size)) {
-                throw new Error ('Можно использовать только вектор типа Vector');
+                throw new Error ('пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ Vector');
         }
 
         const leftBorder = Math.floor(posNext.x);
@@ -287,14 +284,16 @@ class FireRain extends Fireball {
 
 class Coin extends Actor {
     constructor(position = new Vector()) {
-        super(new Vector(position.x + 0.2, position.y + 0.1), new Vector(0.6, 0.6));
-       // this.basePos = position;
+        let basePos = position.plus(new Vector(0.2, 0.1))
+        super(basePos);
+        this.basePos = basePos;
 
         Object.defineProperty(this, 'type', {
             value: 'coin',
             writable: false
         })
 
+        this.size = new Vector(0.6, 0.6);
         this.springSpeed = 8;
         this.springDist = 0.07;
         this.spring = 2 * Math.PI * Math.random();
@@ -310,7 +309,7 @@ class Coin extends Actor {
 
     getNextPosition(time = 1) {
         this.updateSpring(time);
-        return this.pos.plus(this.getSpringVector());
+        return this.basePos.plus(this.getSpringVector());
     }
 
     act(time) {
@@ -319,19 +318,11 @@ class Coin extends Actor {
 }
 
 class Player extends Actor {
-    constructor(position) {
-        super();
-        this.basePos = position;
-        this.size = new Vector(0.8, 1.5);
-        Object.defineProperty(this, 'pos', {
-            get: function () {
-                return this.basePos.plus(new Vector(0, - 0.5));
-            }
-        })
+    constructor(position = new Vector()) {
+        super(new Vector(position.x, position.y - 0.5), new Vector(0.8, 1.5));
         Object.defineProperty(this, 'type', {
             value: 'player',
-            writeble: false,
-            configurable: true
+            writeble: false
         })
     }
 }
